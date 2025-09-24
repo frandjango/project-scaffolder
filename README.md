@@ -1,6 +1,6 @@
 # R Project Scaffolder — Git + `renv` + sensible folders
 
-This repository contains a single function, `scaffold_project()`, that creates a new R project with:
+This repository **showcases the project skeleton** and provides a single function, `scaffold_project()`, to create the same structure for new R projects:
 
 - A clean **directory skeleton** (`data/`, `notebooks/`, `reports/`, `src/`, `lib/`, `literature/`)
 - An **.Rproj** file
