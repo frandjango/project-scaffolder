@@ -219,19 +219,8 @@ scaffold_project <- function(
   if (open) {
     # Launch the project in a new session
     usethis::proj_activate(root)
-
-    # Use callr to run quit in a separate process
-    if (requireNamespace("callr", quietly = TRUE)) {
-      callr::r_bg(function() {
-        Sys.sleep(2)
-        quit(save = "no", runLast = FALSE)
-      })
-    } else {
-      # Fallback to direct quit
-      Sys.sleep(1)
-      quit(save = "no", runLast = FALSE)
-    }
+    Sys.sleep(2)
+    quit(save = "no", runLast = FALSE)
   }
-
   invisible(root)
 }
