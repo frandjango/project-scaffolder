@@ -38,7 +38,7 @@ scaffold_project <- function(
 
   # ---------- structure (defaults) ----------
   dirs <- list(
-    data = c("raw", "preprocessed", "processed", "interim", "sim-input"),
+    data = c("raw", "processed", "interim", "sim-input"),
     notebooks = character(),
     reports = c("figures", "tables"),
     src = character(),
@@ -158,9 +158,7 @@ scaffold_project <- function(
   }
 
   if (init_renv) {
-    withr::with_dir(root, {
-      renv::init(bare = TRUE)
-    })
+    renv::init(bare = TRUE)
   }
 
   if (init_git && create_remote != "none") {
