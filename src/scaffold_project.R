@@ -158,7 +158,9 @@ scaffold_project <- function(
   }
 
   if (init_renv) {
-    renv::init(bare = TRUE)
+    withr::with_dir(root, {
+      renv::init(bare = TRUE)
+    })
   }
 
   if (init_git && create_remote != "none") {
