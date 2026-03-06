@@ -1,12 +1,16 @@
-# scaffold_project.R
-# this function scaffolds a new research project with a standard structure for data management plan purposes
-scaffold_project <- function(
-  name,
-  path = ".",
-  init_git = TRUE,
-  default_branch = "main",
-  init_renv = TRUE,
-  create_remote = c("none", "github", "url"),
+  # Now usethis knows where to operate
+  withr::with_dir(root, {
+    usethis::use_rstudio()
+
+    if (init_git) {
+      usethis::use_git(message = glue::glue("{name} initiated"))
+      try(usethis::git_default_branch_rename(default_branch), silent = TRUE)
+    }
+
+    if (init_renv) {
+      renv::init(project = root, bare = TRUE)
+    }
+  })("none", "github", "url"),
   remote_url = NULL,
   github_org = NULL,
   github_private = TRUE,
