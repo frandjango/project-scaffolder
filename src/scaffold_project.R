@@ -158,7 +158,7 @@ scaffold_project <- function(
   }
 
   if (init_renv) {
-    renv::init(bare = TRUE)
+    renv::init(project = root, bare = TRUE)
   }
 
   if (init_git && create_remote != "none") {
@@ -209,8 +209,10 @@ scaffold_project <- function(
       if (is.null(remote_url)) {
         stop("Provide remote_url when create_remote = 'url'.")
       }
-      system2("git", c("remote", "add", "origin", remote_url))
-      system2("git", c("push", "-u", "origin", default_branch))
+      withr::with_dir(root, {
+        system2("git", c("remote", "add", "origin", remote_url))
+        system2("git", c("push", "-u", "origin", default_branch))
+      })
     }
   }
 
