@@ -31,3 +31,4 @@ data/interim/
 .httr-oauth
 .DS_Store
 .quarto
+CLAUDE.md
