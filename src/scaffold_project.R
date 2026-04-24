@@ -39,6 +39,7 @@ scaffold_project <- function(
   # ---------- structure (defaults) ----------
   dirs <- list(
     data = c("raw", "processed", "interim", "sim-input"),
+    docs = c(),
     notebooks = character(),
     reports = c("figures", "tables"),
     src = character(),
