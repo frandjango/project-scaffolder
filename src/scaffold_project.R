@@ -44,7 +44,8 @@ scaffold_project <- function(
     reports = c("figures", "tables"),
     src = character(),
     lib = character(),
-    literature = character()
+    literature = character(),
+    tests = c("testthat")
   )
   files_root <- c("README.md", ".gitignore", ".Rprofile")
   # allow YAML override
@@ -127,13 +128,86 @@ scaffold_project <- function(
     )
   }
 
-  # README.md in each top-level directory
-  for (top in names(dirs)) {
+  # README.md in each top-level directory (tests gets its own below)
+  for (top in names(dirs)[names(dirs) != "tests"]) {
     write_if_new(
       fs::path(root, top, "README.md"),
       glue::glue("# {top}\n\nDescribe how you use `{top}/`.\n")
     )
   }
+
+  # descriptive README for tests/
+  write_if_new(
+    fs::path(root, "tests", "README.md"),
+    paste(
+      c(
+        "# tests",
+        "",
+        "Unit tests for this project using [testthat](https://testthat.r-lib.org/).",
+        "",
+        "## Structure",
+        "",
+        "```",
+        "tests/",
+        "└── testthat/",
+        "    ├── test-<topic>.R   # one file per script or logical group",
+        "    └── ...",
+        "```",
+        "",
+        "Each test file in `tests/testthat/` must be prefixed with `test-`.",
+        "testthat will ignore any file that does not follow this convention.",
+        "",
+        "## Running tests",
+        "",
+        "Run all tests from the project root:",
+        "",
+        "```r",
+        'testthat::test_dir("tests/testthat")',
+        "```",
+        "",
+        "Or source a specific test file directly:",
+        "",
+        "```r",
+        'source("tests/testthat/test-<topic>.R")',
+        "```",
+        "",
+        "## Writing tests",
+        "",
+        "Each test file groups related assertions using `test_that()` blocks:",
+        "",
+        "```r",
+        "library(testthat)",
+        "",
+        'test_that("my function returns expected output", {',
+        "  result <- my_function(input)",
+        '  expect_equal(result, expected)',
+        '  expect_true(is.numeric(result))',
+        "})",
+        "```",
+        "",
+        "Common expectations: `expect_equal()`, `expect_true()`, `expect_false()`,",
+        "`expect_error()`, `expect_warning()`, `expect_length()`, `expect_snapshot()`.",
+        "",
+        "Name test files to mirror the script they cover, e.g. `src/clean.R` → `tests/testthat/test-clean.R`."
+      ),
+      collapse = "\n"
+    )
+  )
+
+  # starter testthat file so test_dir() has something to run immediately
+  write_if_new(
+    fs::path(root, "tests", "testthat", "test-placeholder.R"),
+    paste(
+      c(
+        'library(testthat)',
+        '',
+        'test_that("placeholder passes", {',
+        '  expect_true(TRUE)',
+        '})'
+      ),
+      collapse = "\n"
+    )
+  )
 
   # ---------- .Rproj, Git, renv, remote ----------
   # Make 'root' the active usethis project for the duration of the block
