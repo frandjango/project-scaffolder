@@ -4,31 +4,20 @@
 .RData
 .Renviron
 .env
-
-# renv
-renv/library/
-renv/staging/
-
-# Generated outputs / caches
-cache/
-graphs/
-logs/
-reports/figures/
-reports/tables/
-
-# Heavy or ephemeral data (keep structure, not contents)
-literature/
-data/raw/
-data/interim/
-
-# Allow small docs that explain folders:
-!data/README.md
-!notebooks/README.md
-!reports/README.md
-!src/README.md
-!lib/README.md
-.Rproj.user
 .httr-oauth
 .DS_Store
 .quarto
+
+# renv (dev environment for this package — not needed by users)
+renv/
+
+# R package build artefacts
+*.Rcheck/
+*.tar.gz
+*.tgz
+man/
+
+# Windows artefacts
+bash.exe.stackdump
+
 CLAUDE.md

@@ -1,5 +1,29 @@
-# scaffold_project.R
-# this function scaffolds a new research project with a standard structure for data management plan purposes
+#' Scaffold a new R research project
+#'
+#' Creates a new R project with a standard directory structure, Git
+#' initialisation, optional renv setup, and optional remote (GitHub or
+#' arbitrary URL).
+#'
+#' @param name Character. Name of the new project (used as the folder name).
+#' @param path Character. Parent directory in which to create the project.
+#'   Defaults to the current working directory.
+#' @param init_git Logical. Initialise a Git repository? Default `TRUE`.
+#' @param default_branch Character. Name of the default Git branch. Default
+#'   `"main"`.
+#' @param init_renv Logical. Initialise renv (bare)? Default `TRUE`.
+#' @param create_remote Character. One of `"none"`, `"github"`, or `"url"`.
+#'   Default `"none"`.
+#' @param remote_url Character. Remote URL when `create_remote = "url"`.
+#' @param github_org Character. GitHub organisation to create the repo under
+#'   (NULL = personal account).
+#' @param github_private Logical. Create a private GitHub repo? Default `TRUE`.
+#' @param template_yaml Character. Path to a YAML file that overrides the
+#'   default directory structure.
+#' @param open Logical. Open the new project in RStudio? Default
+#'   `interactive()`.
+#'
+#' @return Invisibly returns the absolute path to the created project.
+#' @export
 scaffold_project <- function(
   name,
   path = ".",
@@ -13,14 +37,6 @@ scaffold_project <- function(
   template_yaml = NULL,
   open = interactive()
 ) {
-  # deps
-  pkgs <- c("fs", "usethis", "glue", "withr", "later")
-  to_install <- pkgs[
-    !vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)
-  ]
-  if (length(to_install)) {
-    install.packages(to_install)
-  }
   if (!is.null(template_yaml)) {
     if (!requireNamespace("yaml", quietly = TRUE)) install.packages("yaml")
   }
@@ -71,7 +87,6 @@ scaffold_project <- function(
   }
 
   # ---------- root files ----------
-  # README
   if ("README.md" %in% files_root) {
     write_if_new(
       fs::path(root, "README.md"),
@@ -79,7 +94,6 @@ scaffold_project <- function(
     )
   }
 
-  # .gitignore (designed for R + your structure)
   if (".gitignore" %in% files_root) {
     write_if_new(
       fs::path(root, ".gitignore"),
@@ -120,7 +134,6 @@ scaffold_project <- function(
     )
   }
 
-  # .Rprofile (minimal; customize freely)
   if (".Rprofile" %in% files_root) {
     write_if_new(
       fs::path(root, ".Rprofile"),
@@ -129,11 +142,103 @@ scaffold_project <- function(
   }
 
   # README.md in each top-level directory (tests gets its own below)
+  dir_readmes <- list(
+    data = paste(c(
+      "# data",
+      "",
+      "Project data organised by processing stage.",
+      "",
+      "| Subfolder | Purpose |",
+      "|-----------|---------|",
+      "| `raw/`       | Original, unmodified source files. **Never edit these.** (gitignored) |",
+      "| `processed/` | Clean, analysis-ready datasets derived from raw. |",
+      "| `interim/`   | Intermediate outputs between pipeline steps. (gitignored) |",
+      "| `sim-input/` | Inputs for simulation or modelling runs. |",
+      "",
+      "Add small reference files (lookup tables, metadata) directly here."
+    ), collapse = "\n"),
+    docs = paste(c(
+      "# docs",
+      "",
+      "Project documentation: design decisions, data dictionaries, meeting notes, onboarding guides.",
+      "",
+      "Keep documents that help a new collaborator (or future you) understand the project.",
+      "Generated reports belong in `reports/` instead."
+    ), collapse = "\n"),
+    notebooks = paste(c(
+      "# notebooks",
+      "",
+      "Exploratory analysis, prototyping, and literate-programming documents.",
+      "",
+      "Use `.Rmd` or `.qmd` files here. Name them with a numeric prefix and a short description:",
+      "",
+      "```",
+      "01-eda.qmd",
+      "02-feature-engineering.Rmd",
+      "03-model-selection.qmd",
+      "```",
+      "",
+      "Notebooks are for exploration — production-ready logic should be moved to `src/`."
+    ), collapse = "\n"),
+    reports = paste(c(
+      "# reports",
+      "",
+      "Polished outputs for stakeholders or publication.",
+      "",
+      "| Subfolder | Purpose |",
+      "|-----------|---------|",
+      "| `figures/` | Charts and plots (gitignored — regenerate from `src/`). |",
+      "| `tables/`  | Summary tables (gitignored — regenerate from `src/`). |",
+      "",
+      "Place final `.qmd` / `.Rmd` report sources directly here."
+    ), collapse = "\n"),
+    src = paste(c(
+      "# src",
+      "",
+      "R scripts that form the analysis pipeline.",
+      "",
+      "Suggested naming convention:",
+      "",
+      "```",
+      "01-ingest.R        # load and validate raw data",
+      "02-clean.R         # reshape, filter, impute",
+      "03-analyse.R       # models, statistics",
+      "04-visualise.R     # produce figures saved to reports/figures/",
+      "```",
+      "",
+      "Each script should be runnable in isolation given the outputs of the previous step.",
+      "Shared helpers used across multiple scripts belong in `lib/`."
+    ), collapse = "\n"),
+    lib = paste(c(
+      "# lib",
+      "",
+      "Custom R functions and helpers shared across scripts in `src/`.",
+      "",
+      "Source individual files at the top of a script:",
+      "",
+      "```r",
+      'source("lib/utils.R")',
+      "```",
+      "",
+      "If helpers grow large enough to warrant their own package, build one with `usethis::create_package()`."
+    ), collapse = "\n"),
+    literature = paste(c(
+      "# literature",
+      "",
+      "Papers, reports, and reference documents relevant to this project.",
+      "",
+      "This folder is **gitignored** — PDFs and large files are not committed.",
+      "Store a `references.bib` or a plain-text reading list here to track what you have read."
+    ), collapse = "\n")
+  )
+
   for (top in names(dirs)[names(dirs) != "tests"]) {
-    write_if_new(
-      fs::path(root, top, "README.md"),
-      glue::glue("# {top}\n\nDescribe how you use `{top}/`.\n")
-    )
+    content <- if (!is.null(dir_readmes[[top]])) {
+      dir_readmes[[top]]
+    } else {
+      glue::glue("# {top}\n\nDescribe how you use `{top}/`.")
+    }
+    write_if_new(fs::path(root, top, "README.md"), content)
   }
 
   # descriptive README for tests/
@@ -210,7 +315,6 @@ scaffold_project <- function(
   )
 
   # ---------- .Rproj, Git, renv, remote ----------
-  # Make 'root' the active usethis project for the duration of the block
   old_proj <- tryCatch(usethis::proj_get(), error = function(e) NULL)
   usethis::proj_set(root, force = TRUE)
   on.exit(
@@ -224,7 +328,6 @@ scaffold_project <- function(
     add = TRUE
   )
 
-  # Now usethis knows where to operate
   usethis::use_rstudio()
 
   if (init_git) {
@@ -250,7 +353,7 @@ scaffold_project <- function(
       )
       if (!ok) {
         stop(
-          "GitHub token missing or expired. Run usethis::create_github_token(), 
+          "GitHub token missing or expired. Run usethis::create_github_token(),
       then run usethis::edit_r_environ() to add to ~/.Renviron as GITHUB_TOKEN and save,
       then readRenviron('~/.Renviron'),
       then check with gh::gh_whoami() - it should show your username,
@@ -258,14 +361,11 @@ scaffold_project <- function(
         )
       }
 
-      # Store old options and suppress all browser opening
       old_browse <- getOption("usethis.browse")
       old_browser <- getOption("browser")
       options(
         usethis.browse = FALSE,
-        browser = function(...) {
-          invisible(NULL)
-        } # No-op browser function
+        browser = function(...) invisible(NULL)
       )
       on.exit(
         {
@@ -294,7 +394,6 @@ scaffold_project <- function(
   message("✅ Project ready at: ", root)
 
   if (open) {
-    # Launch the project in a new session
     usethis::proj_activate(root)
     Sys.sleep(2)
     quit(save = "no", runLast = FALSE)

@@ -1,0 +1,24 @@
+Package: scaffoldR
+Type: Package
+Title: Scaffold New R Research Projects
+Version: 0.1.0
+Authors@R: person("Franco", "Edwardes",
+    email = "franco.edwardes@gmail.com",
+    role = c("aut", "cre"))
+Description: Creates new R projects with a standardised directory structure,
+    Git initialisation, optional renv setup, and optional remote configuration
+    (GitHub or arbitrary URL). Call scaffoldR::scaffold_project() to spin up a
+    project in seconds.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+Imports:
+    fs,
+    glue,
+    usethis,
+    withr,
+    later
+Suggests:
+    renv,
+    gh,
+    yaml
