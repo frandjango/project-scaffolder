@@ -103,12 +103,12 @@ scaffold_project <- function(
           ".Rproj.user/",
           ".Rhistory",
           ".RData",
+          ".Rprofile",
           ".Renviron",
           ".env",
           "",
-          "# renv",
-          "renv/library/",
-          "renv/staging/",
+          "# renv (local library; lock file is tracked separately)",
+          "renv/",
           "",
           "# Generated outputs / caches",
           "cache/",
@@ -395,8 +395,6 @@ scaffold_project <- function(
 
   if (open) {
     usethis::proj_activate(root)
-    Sys.sleep(2)
-    quit(save = "no", runLast = FALSE)
   }
   invisible(root)
 }
