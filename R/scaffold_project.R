@@ -99,6 +99,9 @@ scaffold_project <- function(
       fs::path(root, ".gitignore"),
       paste(
         c(
+          "# Windows / shell artefacts",
+          "bash.exe.stackdump",
+          "",
           "# R / RStudio",
           ".Rproj.user/",
           ".Rhistory",
